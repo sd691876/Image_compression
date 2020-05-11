@@ -24,7 +24,7 @@ Quantization_Tables = [16 11 10 16  24  40  51  61
 Y = zeros(size(x,1),size(x,2));
 Y_nofunc = zeros(size(x,1),size(x,2));
 N =8;
-EC  = zeros(size(x,1)/N,N*N);
+EC  = zeros(size(x,1)/N * size(x,2)/N,N*N);
 
 for i  = 1 : N : 256
     for j = 1 : N :256
@@ -32,9 +32,21 @@ for i  = 1 : N : 256
         Y_nofunc(i:i+7,j:j+7) = round(y_nofunc./Quantization_Tables);
         y =dct2(x(i:i+7,j:j+7));
         Y(i:i+7,j:j+7) = round(y./Quantization_Tables);
-        EC(ceil(i/N)*31 + ceil(j/N),:) = En_Coding(Y(i:i+7,j:j+7)); %compute Entropy of all figure
+        EC(floor(i/N)*31 + ceil(j/N),:) = En_Coding(Y(i:i+7,j:j+7)); %compute Entropy of all figure
     end
 end
+rlc = RLC(EC);
+
+A = [];
+for i = 1 : 2 :size(rlc,1)
+    A = [A rlc{i,1} rlc{i+1,1}];
+end
+[C,~,ic] = unique(A);
+D = accumarray(ic(:),1);
+pb = D(:)'./sum(D(:));
+HD = Huffmandict(C,pb);
+%DICT = huffmandict(C, pb);
+
 reg = zeros(2, length(min(min(EC)):max(max(EC))));
 reg(1,:) = min(min(EC)):max(max(EC));
 

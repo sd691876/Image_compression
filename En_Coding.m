@@ -21,6 +21,7 @@ function EC = En_Coding(A)
     zz = [m1' m2'];
 
     for i = 1:N*N
-        EC(i) = A(zz(i,1),zz(i,2));
+        EC(1,i) = A(zz(i,1),zz(i,2));
     end
+    
 end
